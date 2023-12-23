@@ -9,9 +9,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import  ElementClickInterceptedException
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
@@ -44,41 +42,36 @@ class PageRankSpider(scrapy.Spider):
         
         driver = webdriver.Chrome(options=chrome_options)
         driver.get(item['url'])
+        print("item['url']: ", item['url'])
         
         # Scroll down to the bottom of the page to ensure all elements are loaded
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        try:
-            # Wait for the dynamically loaded elements to appear
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, ".ty-card-tt"))
-            )
-        except TimeoutException:
-            print("Timeout waiting for elements to load.")
-            driver.quit()
-            return
+        driver.implicitly_wait(5)
+        main_handle = driver.window_handles
         
-        # links = driver.find_elements(By.CSS_SELECTOR, ".ty-card.ty-card-type1.clearfix")
         links = driver.find_elements(By.CLASS_NAME, "ty-card-tt")
-        for link in links:
+        for i in range(0, 10):
+            # Use JavaScript to click the link
+            link = links[i]
             try:
-                main_window = driver.current_window_handle
-                link.click()  # This might open a new window, depending on the page behavior
-                # Wait for the new window to open
-                WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
-                new_window = [window for window in driver.window_handles if window != main_window][0]
-                driver.switch_to.window(new_window)
-                l = driver.current_url
-                item['page_link'].append(l)
-                print("--------", l, "--------\n\n\n")
-                
-                with open('page_links.txt', 'a', encoding='utf-8') as f:
-                    f.write(l + '\n')        
-                
-                time.sleep(30)
-                driver.close()  # Close the new window
-                driver.switch_to.window(main_window)  # Switch back to the main window
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Error clicking on link or handling new window: {e}")
+                link.click()
+            except (ElementClickInterceptedException):
+                print(1)
+            driver.implicitly_wait(1)
+            
+
+        # 获取所有窗口句柄
+        all_handles = driver.window_handles
+        print(all_handles)
         
+        # 遍历窗口句柄
+        for handle in all_handles:
+            driver.switch_to.window(handle)
+            if main_handle[0] != handle:
+                item['page_link'].append(driver.current_url)
+                print("page_link: ", driver.current_url)
+
+        print(item['page_link'])
         driver.quit()
+        time.sleep(1)
         yield item
