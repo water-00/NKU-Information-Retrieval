@@ -22,3 +22,4 @@ class NewsinaspiderItem(scrapy.Item):
     media_name = Field()  # 发发布的媒体
     keywords = Field()  #  关键词
     content = Field()  #  新闻内容
+    page_link = Field() # 相关新闻

@@ -1,6 +1,5 @@
 from elasticsearch import Elasticsearch
 import pymongo
-from bson import ObjectId
 
 # 连接到Elasticsearch
 USERNAME = "elastic"
@@ -82,10 +81,23 @@ es.indices.create(
     }
 )
 
-# 遍历MongoDB集合并索引数据到Elasticsearch
+# 遍历 MongoDB 集合并索引数据到 Elasticsearch
 for doc in collection.find():
-    # 保存 _id 的值并从文档中删除 _id 字段
     doc_id = str(doc['_id'])
     del doc['_id']
     # 索引文档到 Elasticsearch
     es.index(index=index_name, id=doc_id, body=doc)
+
+    content = doc.get("content", "")
+    
+    # # 检查 content 是否为空
+    # if content:
+    #     # 使用 _analyze API 分析文本
+    #     analyze_body = {
+    #         "analyzer": "ik_max_word",
+    #         "text": content
+    #     }
+
+    #     response = es.indices.analyze(body=analyze_body)
+    #     print("Analyze Result:", response)
+    #     print("\n")
