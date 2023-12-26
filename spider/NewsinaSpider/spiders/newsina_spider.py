@@ -18,7 +18,7 @@ chrome_options.add_argument("--headless")
 
 class NewsinaSpider(scrapy.Spider):
     name = 'newsina_spider'
-    base_url = 'https://feed.mix.sina.com.cn/api/roll/get?pageid=153&lid={}&k=&num=50&page={}&r={}'
+    base_url = 'https://feed.mix.sina.com.cn/api/roll/get?pageid=153&lid={}&k=&num=50&page={}'
 
     def __init__(self, *args, **kwargs):
         super(NewsinaSpider, self).__init__(*args, **kwargs)
@@ -26,34 +26,33 @@ class NewsinaSpider(scrapy.Spider):
         self.client = MongoClient('localhost', 27017)
         self.db = self.client['Newsina']  # 你的数据库名
         self.collection = self.db['newsina']  # 你的集合名
-
+        self.jump_num = 0
 
     def start_requests(self):
         page_total = 10  # 可修改，设置爬取页数
-        for page in range(1, page_total + 1):
-            lids = [
-                "2511"#, "2669", "2512", "2513", "2514", "2515", "2516", "2517", "2518", "2968", "2970", "2972", "2974"
-            ]  # 所有类别的ID
-            
-            #     "2509": "全部",
-            #     "2510": "国内",
-            #     "2511": "国际",
-            #     "2669": "社会",
-            #     "2512": "体育",
-            #     "2513": "娱乐",
-            #     "2514": "军事",
-            #     "2515": "科技",
-            #     "2516": "财经",
-            #     "2517": "股市",
-            #     "2518": "美股",
-            #     "2968": "国内_国际",
-            #     "2970": "国内_社会",
-            #     "2972": "国际_社会",
-            #     "2974": "国内国际社会"
-
-            for lid in lids:
+        lids = [
+            "2511", "2669", "2512", "2513", "2514", "2515", "2516", "2517", "2518", "2968", "2970", "2972", "2974" #, "2509", # "2510"
+        ]
+        
+        for lid in lids:
+            for page in range(1, page_total + 1):
+                #     "2509": "全部",
+                #     "2510": "国内",
+                #     "2511": "国际",
+                #     "2669": "社会",
+                #     "2512": "体育",
+                #     "2513": "娱乐",
+                #     "2514": "军事",
+                #     "2515": "科技",
+                #     "2516": "财经",
+                #     "2517": "股市",
+                #     "2518": "美股",
+                #     "2968": "国内_国际",
+                #     "2970": "国内_社会",
+                #     "2972": "国际_社会",
+                #     "2974": "国内国际社会"
                 r = random.random()
-                yield Request(self.base_url.format(lid, page, r), callback=self.parse)
+                yield Request(self.base_url.format(lid, page), callback=self.parse)
 
     def parse(self, response):
         result = json.loads(response.text)
@@ -73,7 +72,8 @@ class NewsinaSpider(scrapy.Spider):
 
             # 查询 MongoDB 确认 URL 是否已经存在
             if self.collection.find_one({'url': item['url']}):
-                print(f"URL已存在，跳过：{item['url']}")
+                print(f"URL已存在，跳过：{item['title']}, {self.jump_num}")
+                self.jump_num += 1
                 continue  # 如果存在，则跳过该项
 
             # 如果 URL 不存在，则继续进行后续操作
@@ -81,6 +81,8 @@ class NewsinaSpider(scrapy.Spider):
 
     def parse_content(self, response):
         item = response.meta['item']
+        print(f"新页面：{item['title']}")
+        
         content = ''.join(response.xpath('//*[@id="artibody" or @id="article"]//p/text()').extract())
         # 清洗和格式化内容
         content = re.sub(r'\u3000', '', content)

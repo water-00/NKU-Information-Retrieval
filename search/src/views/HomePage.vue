@@ -10,12 +10,34 @@
         @search="onSearch"
       />
       <div class="buttons">
-        <a-button @click="onPhraseSearch">短语查询</a-button>
+        <a-button :class="{active: isPhraseSearch}" @click="onPhraseSearch">短语查询</a-button>
         <a-button :class="{active: isWildcardSearch}" @click="onWildcardSearch">通配查询</a-button>
       </div>
       <p v-if="isWildcardSearch" class="wildcard-description">
         通配查询可以使用 * 代表任意字符，? 代表一个字符。
       </p>
+      <!-- 短语查询表单 -->
+      <div v-if="isPhraseSearch" class="phrase-search-form">
+        <div class="form-item">
+          <label>必须包含的关键词：</label>
+          <a-input placeholder="关键词..." v-model="phraseSearch.keywords" />
+        </div>
+        <div class="form-item">
+          <label>发布日期：</label>
+          <a-input placeholder="YY-MM-DDDD" v-model="phraseSearch.dateRange" />
+        </div>
+        <div class="form-item">
+          <label>来源媒体：</label>
+          <a-input placeholder="媒体..." v-model="phraseSearch.media" />
+        </div>
+        <div class="form-item">
+          <label>不包含以下内容：</label>
+          <a-input placeholder="不包含的内容..." v-model="phraseSearch.excludedContent" />
+        </div>
+        <div class="form-item">
+          <a-button type="primary" @click="onSearch">搜索</a-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -30,8 +52,14 @@ export default {
   data() {
     return {
       searchText: "",
-      isWildcardSearch: false, // 新增状态，用于跟踪通配查询是否激活
-      isPhraseSearch: false
+      isWildcardSearch: false,
+      isPhraseSearch: false,
+      phraseSearch: {
+        keywords: '',
+        dateRange: '',
+        media: '',
+        excludedContent: ''
+      }
     };
   },
   components: {
@@ -45,7 +73,13 @@ export default {
             query: { 
               q: this.searchText, 
               wildcard: this.isWildcardSearch, 
-              phrase: this.isPhraseSearch 
+              phrase: this.isPhraseSearch,
+              phraseSearch: {
+                keywords: this.phraseSearch.keywords,
+                dateRange: this.phraseSearch.dateRange,
+                media: this.phraseSearch.media,
+                excludedContent: this.phraseSearch.excludedContent
+              }
             }
           }).catch((err) => {
           if (err.name !== "NavigationDuplicated") {
@@ -109,4 +143,25 @@ a-button.active {
   margin-top: 10px; /* 在说明文字和按钮之间添加空间 */
   color: #666; /* 说明文字的颜色 */
 }
+
+.phrase-search-form {
+  background: #fff;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-item {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.form-item label {
+  min-width: 130px;
+  text-align: right;
+  margin-right: 10px;
+}
+
 </style>
