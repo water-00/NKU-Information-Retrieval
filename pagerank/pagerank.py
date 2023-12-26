@@ -52,3 +52,23 @@ with open('./pagerank_scores.json', 'w', encoding='utf-8') as file:
     json.dump(sorted_url_scores, file, ensure_ascii=False, indent=4)
 
 print("Sorted PageRank scores saved to 'pagerank_scores.json'.")
+
+# 读取JSON文件并更新MongoDB中的文档
+with open('./pagerank_scores.json', 'r', encoding='utf-8') as file:
+    pagerank_scores = json.load(file)
+
+    # 遍历每个URL和对应的PageRank分数
+    for url, score in pagerank_scores.items():
+        # 如果URL在MongoDB中存在，则更新其pagerank_score
+        result = collection.update_one(
+            {"url": url},  # 查询条件
+            {"$set": {"pagerank_score": score}}  # 更新操作
+        )
+        
+        # 打印更新结果
+        if result.matched_count:
+            print(f"Updated pagerank_score for {url}")
+        else:
+            print(f"URL {url} not found in MongoDB")
+
+print("MongoDB documents have been updated with PageRank scores.")
