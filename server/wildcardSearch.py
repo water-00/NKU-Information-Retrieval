@@ -1,6 +1,5 @@
 from elasticsearch import Elasticsearch
 
-
 USERNAME = "elastic"
 PASSWORD = "aYJ-U7SNLSE4X=ZnosE3"
 es = Elasticsearch(
@@ -12,14 +11,44 @@ es = Elasticsearch(
 index_name = "newsina_index"
 
 def wildcardSearch(query: str):
-
     dsl = {
         "query": {
-            "wildcard": {
-                "content": {
-                    "value": f"*{query}*"
-                }
+            "bool": {
+                "should": [
+                    {
+                        "wildcard": {
+                            "title": {
+                                "value": f"*{query}*"
+                            }
+                        }
+                    },
+                    {
+                        "wildcard": {
+                            "keywords": {
+                                "value": f"*{query}*"
+                            }
+                        }
+                    },
+                    {
+                        "wildcard": {
+                            "content": {
+                                "value": f"*{query}*"
+                            }
+                        }
+                    }
+                ],
+                "minimum_should_match": 1
             }
+        },
+        "highlight": {
+            "fields": {
+                "title": {},
+                "keywords": {},
+                "content": {}
+            },
+            "require_field_match": False,
+            "pre_tags": ["<highlight>"],
+            "post_tags": ["</highlight>"]
         }
     }
 

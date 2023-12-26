@@ -4,6 +4,12 @@
       <img src="./../assets/haogle.png" @click="goHome" />
     </div>
     <div class="right">
+      <!-- 添加通配查询的切换开关 -->
+      <a-switch
+        :checked="isWildcardSearch"
+        @change="toggleWildcard"
+        style="margin-bottom: 10px;"
+      />通配查询
       <a-input-search
         v-focus
         v-model="searchText"
@@ -18,7 +24,6 @@
 </template>
 
 <script>
-// 导入子组件，axios用于发起HTTP请求，SearchResult用于显示搜索结果
 import axios from "axios";
 import SearchResult from "../components/SearchResult";
 
@@ -28,12 +33,18 @@ export default {
     return {
       searchText: "",
       result: [],
+      isWildcardSearch: false,
+      isPhraseSearch: false
     };
   },
   components: {
     SearchResult,
   },
   methods: {
+    toggleWildcard(value) {
+      this.isWildcardSearch = value;
+      console.log(this.isWildcardSearch)
+    },
     goHome() {
       this.$router.push("/").catch((err) => {
         if (err.name !== "NavigationDuplicated") {
@@ -42,10 +53,16 @@ export default {
       });
     },
     searchResult() {
-      const currentQuery = this.$route.query.q;
-      if (this.searchText !== "" && this.searchText !== currentQuery) {
-        this.$router
-          .push({ path: `/search`, query: { q: this.searchText } })
+      // const currentQuery = this.$route.query.q;
+      if (this.searchText !== "") {
+        this.$router.push({ 
+            path: `/search`, 
+            query: { 
+              q: this.searchText, 
+              wildcard: this.isWildcardSearch, 
+              phrase: this.isPhraseSearch 
+            }
+          })
           .catch((err) => {
             if (err.name !== "NavigationDuplicated") {
               throw err;
@@ -53,7 +70,8 @@ export default {
           });
       }
 
-      const path = "http://localhost:5000/search?q=" + currentQuery;
+      const path = `http://localhost:5000/search?q=${encodeURIComponent(this.searchText)}&wildcard=${this.isWildcardSearch}&phrase=${this.isPhraseSearch}`;
+
       axios
         .get(path)
         .then((res) => {
@@ -64,14 +82,17 @@ export default {
         });
     },
   },
-
   created() {
     this.searchText = this.$route.query.q || '';
+    this.isWildcardSearch = this.$route.query.wildcard === 'true';
+    this.isPhraseSearch = this.$route.query.phrase === 'true';
     this.searchResult();
   },
   watch: {
-    '$route.query.q'(newQuery) {
-      this.searchText = newQuery || '';
+    '$route.query'(newQuery) {
+      this.searchText = newQuery.q || '';
+      this.isWildcardSearch = newQuery.wildcard === 'true';
+      this.isPhraseSearch = newQuery.phrase === 'true';
       this.searchResult();
     },
   },
@@ -101,4 +122,5 @@ img {
   padding-top: 4px;
   text-align: center;
 }
+
 </style>

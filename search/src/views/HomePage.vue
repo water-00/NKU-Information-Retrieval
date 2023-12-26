@@ -23,7 +23,7 @@
 <script>
 // 子组件
 import LogoComponent from "@/components/LogoComponent.vue";
-import axios from "axios";
+// import axios from "axios";
 
 export default {
   name: "HomePage",
@@ -39,58 +39,29 @@ export default {
   },
   methods: {
     onSearch() {
-      // 如果通配查询激活，则调用通配查询函数，否则执行正常搜索
-      if (this.isWildcardSearch) {
-        this.wildcardSearch();
-      } else {
-        if (this.searchText !== "") {
-          this.$router
-            .push({ path: `/search`, query: { q: this.searchText } })
-            .catch((err) => {
-              if (err.name !== "NavigationDuplicated") {
-                throw err;
-              }
-            });
-          console.info("home router q  :" + this.searchText);
-        }
+      if (this.searchText !== "") {
+        this.$router.push({ 
+            path: `/search`, 
+            query: { 
+              q: this.searchText, 
+              wildcard: this.isWildcardSearch, 
+              phrase: this.isPhraseSearch 
+            }
+          }).catch((err) => {
+          if (err.name !== "NavigationDuplicated") {
+            throw err;
+          }
+        });
+        console.info("home router q  :" + this.searchText);
       }
     },
     onPhraseSearch() {
-      // 处理短语查询的逻辑
-      console.info("Performing phrase search for: " + this.searchText);
-      // 如果当前是通配查询模式，则关闭它
       this.isWildcardSearch = false;
+      this.isPhraseSearch = !this.isPhraseSearch
     },
     onWildcardSearch() {
       this.isPhraseSearch = false;
       this.isWildcardSearch = !this.isWildcardSearch;
-    },
-    wildcardSearch() {
-      // 通配查询的逻辑
-      console.info("Performing wildcard search for: " + this.searchText);
-
-      // 检查搜索文本是否为空
-      if (this.searchText.trim() === '') {
-        console.warn("Search text is empty.");
-        return;
-      }
-
-      // 构造通配符查询的URL
-      const path = `http://localhost:5000/search?wildcard=true&q=${encodeURIComponent(this.searchText)}`;
-
-      // 发送GET请求到后端服务
-      axios.get(path)
-        .then((res) => {
-          // 将结果赋值给result数据属性以更新显示结果
-          this.result = res.data;
-        })
-        .catch((error) => {
-          // 打印错误到控制台
-          if (error.name !== "NavigationDuplicated") {
-            throw error;
-          }
-          console.error("Error during wildcard search: ", error);
-        });
     },
   },
   directives: {
