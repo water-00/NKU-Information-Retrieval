@@ -18,11 +18,13 @@ def movies():
         if phrase:
             # 直接获取短语搜索的参数
             keywords = request.args.get('keywords', '')
-            date = request.args.get('dateRange', '')
+            startDate = request.args.get('startDate', '')
+            endDate = request.args.get('endDate', '')
             media = request.args.get('media', '')
             excluded_content = request.args.get('excludedContent', '')
+            print(text, keywords, startDate, endDate, media, excluded_content)
             # 短语搜索
-            result = phraseSearch(text, keywords, date, media, excluded_content)
+            result = phraseSearch(text, keywords, startDate, endDate, media, excluded_content)
         elif wildcard:
             # 通配符搜索
             result = wildcardSearch(text)

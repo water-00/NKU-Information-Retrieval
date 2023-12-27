@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from scrapy import Request
 from ..items import *
 import random
@@ -31,7 +30,7 @@ class NewsinaSpider(scrapy.Spider):
     def start_requests(self):
         page_total = 10  # 可修改，设置爬取页数
         lids = [
-            "2511", "2669", "2512", "2513", "2514", "2515", "2516", "2517", "2518", "2968", "2970", "2972", "2974" #, "2509", # "2510"
+            "2514", "2515", "2516", "2517", "2518", "2968", "2970", "2972", "2974" #, "2509", "2510", "2511", "2669", "2512", "2513"
         ]
         
         for lid in lids:

@@ -49,7 +49,7 @@ settings = {
 
 mappings = {
     "properties": {
-        "ctime": {"type": "date", "format": "yyyy-MM-dd HH:mm"},
+        "ctime": {"type": "date", "format": "YYYY-MM-DD HH:mm"},
         "url": {"type": "keyword"},
         "wapurl": {"type": "keyword"},
         "title": {

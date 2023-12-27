@@ -27,16 +27,19 @@
       <!-- 短语查询表单 -->
       <a-row v-if="isPhraseSearch" class="phrase-search-form" gutter="16">
         <a-col :span="24" class="phrase-search-keywords">
-          <a-input placeholder="请输入关键词..." v-model="phraseSearch.keywords" />
+          <a-input placeholder="请输入关键词..." v-model="keywords" />
         </a-col>
         <a-col :span="24">
-          <a-input placeholder="发布日期..." v-model="phraseSearch.dateRange" />
+          <a-input placeholder="起始日期..." v-model="startDate" />
         </a-col>
         <a-col :span="24">
-          <a-input placeholder="来源媒体..." v-model="phraseSearch.media" />
+          <a-input placeholder="截止日期..." v-model="endDate" />
         </a-col>
         <a-col :span="24">
-          <a-input placeholder="排除内容..." v-model="phraseSearch.excludedContent" />
+          <a-input placeholder="来源媒体..." v-model="media" />
+        </a-col>
+        <a-col :span="24">
+          <a-input placeholder="排除内容..." v-model="excludedContent" />
         </a-col>
         <a-col :span="24" class="phrase-search-button">
           <a-button type="primary" @click="searchResult">短语搜索</a-button>
@@ -61,12 +64,11 @@ export default {
       result: [],
       isWildcardSearch: false,
       isPhraseSearch: false, 
-      phraseSearch: {
-        keywords: '',
-        dateRange: '',
-        media: '',
-        excludedContent: ''
-      }
+      keywords: '',
+      startDate: '',
+      endDate: '',
+      media: '',
+      excludedContent: ''
     };
   },
   components: {
@@ -100,12 +102,11 @@ export default {
               q: this.searchText, 
               wildcard: this.isWildcardSearch, 
               phrase: this.isPhraseSearch,
-              phraseSearch: {
-                keywords: this.phraseSearch.keywords,
-                dateRange: this.phraseSearch.dateRange,
-                media: this.phraseSearch.media,
-                excludedContent: this.phraseSearch.excludedContent
-              }
+              keywords: this.keywords,
+              startDate: this.startDate,
+              endDate: this.endDate,
+              media: this.media,
+              excludedContent: this.excludedContent
             }, 
           })
           .catch((err) => {
@@ -115,36 +116,26 @@ export default {
           });
       }
       
-      if (this.isPhraseSearch) {
-        const path = `http://localhost:5000/search?q=${encodeURIComponent(this.searchText)}&wildcard=${this.isWildcardSearch}&phrase=${this.isPhraseSearch}&keywords=${this.phraseSearch.keywords}&dateRange=${this.phraseSearch.dateRange}&media=${this.phraseSearch.media}&excludedContent=${this.phraseSearch.excludedContent}`;
-        axios
-          .get(path)
-          .then((res) => {
-            this.result = res.data;
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      } else {
-        const path = `http://localhost:5000/search?q=${encodeURIComponent(this.searchText)}&wildcard=${this.isWildcardSearch}&phrase=${this.isPhraseSearch}`;
-        axios
-          .get(path)
-          .then((res) => {
-            this.result = res.data;
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
-
-
+    const path = `http://localhost:5000/search?q=${encodeURIComponent(this.searchText)}&wildcard=${this.isWildcardSearch}&phrase=${this.isPhraseSearch}&keywords=${this.keywords}&startDate=${this.startDate}&endDate=${this.endDate}&media=${this.media}&excludedContent=${this.excludedContent}`;
+    axios
+      .get(path)
+      .then((res) => {
+        this.result = res.data;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     },
   },
   created() {
     this.searchText = this.$route.query.q || '';
     this.isWildcardSearch = this.$route.query.wildcard === 'true';
     this.isPhraseSearch = this.$route.query.phrase === 'true';
-    this.phraseSearch = this.$route.query.phraseSearch;
+    this.keywords = this.$route.query.keywords;
+    this.startDate = this.$route.query.startDate;
+    this.endDate = this.$route.query.endDate;
+    this.media = this.$route.query.media;
+    this.excludedContent = this.$route.query.excludedContent;
     this.searchResult();
   },
   watch: {
@@ -152,7 +143,11 @@ export default {
       this.searchText = newQuery.q || '';
       this.isWildcardSearch = newQuery.wildcard === 'true';
       this.isPhraseSearch = newQuery.phrase === 'true';
-      this.phraseSearch = this.$route.query.phraseSearch;
+      this.keywords = this.$route.query.keywords;
+      this.startDate = this.$route.query.startDate;
+      this.endDate = this.$route.query.endDate;
+      this.media = this.$route.query.media;
+      this.excludedContent = this.$route.query.excludedContent;
       this.searchResult();
     },
   },

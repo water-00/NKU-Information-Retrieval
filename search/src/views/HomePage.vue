@@ -20,19 +20,23 @@
       <div v-if="isPhraseSearch" class="phrase-search-form">
         <div class="form-item">
           <label>必须包含的关键词：</label>
-          <a-input placeholder="关键词..." v-model="phraseSearch.keywords" />
+          <a-input placeholder="关键词..." v-model="keywords" />
         </div>
         <div class="form-item">
-          <label>发布日期：</label>
-          <a-input placeholder="YY-MM-DDDD" v-model="phraseSearch.dateRange" />
+          <label>起始日期：</label>
+          <a-input placeholder="YYYY-MM-DD" v-model="startDate" />
+        </div>
+        <div class="form-item">
+          <label>截止日期：</label>
+          <a-input placeholder="YYYY-MM-DD" v-model="endDate" />
         </div>
         <div class="form-item">
           <label>来源媒体：</label>
-          <a-input placeholder="媒体..." v-model="phraseSearch.media" />
+          <a-input placeholder="媒体..." v-model="media" />
         </div>
         <div class="form-item">
           <label>不包含以下内容：</label>
-          <a-input placeholder="不包含的内容..." v-model="phraseSearch.excludedContent" />
+          <a-input placeholder="不包含的内容..." v-model="excludedContent" />
         </div>
         <div class="form-item">
           <a-button type="primary" @click="onSearch">搜索</a-button>
@@ -54,12 +58,11 @@ export default {
       searchText: "",
       isWildcardSearch: false,
       isPhraseSearch: false,
-      phraseSearch: {
-        keywords: '',
-        dateRange: '',
-        media: '',
-        excludedContent: ''
-      }
+      keywords: '',
+      startDate: '',
+      endDate: '',
+      media: '',
+      excludedContent: ''
     };
   },
   components: {
@@ -74,12 +77,11 @@ export default {
               q: this.searchText, 
               wildcard: this.isWildcardSearch, 
               phrase: this.isPhraseSearch,
-              phraseSearch: {
-                keywords: this.phraseSearch.keywords,
-                dateRange: this.phraseSearch.dateRange,
-                media: this.phraseSearch.media,
-                excludedContent: this.phraseSearch.excludedContent
-              }
+              keywords: this.keywords,
+              startDate: this.startDate,
+              endDate: this.endDate,
+              media: this.media,
+              excludedContent: this.excludedContent
             }
           }).catch((err) => {
           if (err.name !== "NavigationDuplicated") {

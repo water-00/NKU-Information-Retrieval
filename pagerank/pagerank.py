@@ -65,10 +65,4 @@ with open('./pagerank_scores.json', 'r', encoding='utf-8') as file:
             {"$set": {"pagerank_score": score}}  # 更新操作
         )
         
-        # 打印更新结果
-        if result.matched_count:
-            print(f"Updated pagerank_score for {url}")
-        else:
-            print(f"URL {url} not found in MongoDB")
-
 print("MongoDB documents have been updated with PageRank scores.")
