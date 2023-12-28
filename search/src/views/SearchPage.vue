@@ -45,6 +45,7 @@
           <a-button type="primary" @click="searchResult">短语搜索</a-button>
         </a-col>
       </a-row>
+      
       <div v-for="item in result" :key="item.id">
         <SearchResult :info="item"></SearchResult>
       </div>

@@ -49,7 +49,6 @@
 <script>
 // 子组件
 import LogoComponent from "@/components/LogoComponent.vue";
-// import axios from "axios";
 
 export default {
   name: "HomePage",
@@ -83,7 +82,7 @@ export default {
               media: this.media,
               excludedContent: this.excludedContent
             }
-          }).catch((err) => {
+        }).catch((err) => {
           if (err.name !== "NavigationDuplicated") {
             throw err;
           }

@@ -19,13 +19,33 @@
 </template>
 
 <script>
+
 export default {
   name: "SearchResult",
   props: ["info"],
+  
   methods: {
     goToDetailedPage() {
       // 在这里使用路由导航到详细页面，你需要替换 'detailedPage' 为你的详细页面的路由路径
-      this.$router.push({ name: "detailedPage", params: { id: this.info._id } });
+      console.log(this.info._source.title)
+
+      this.$router.push({
+        path: `/detailed`,
+        query: { 
+          id: this.info._id,
+          title: this.info._source.title,
+          ctime: this.info._source.ctime,
+          media_name: this.info._source.media_name || '新闻',
+          content: this.info._source.content,
+          keywords: this.info._source.keywords,
+          // TODO page_link
+        }
+      })
+      .catch((err) => {
+        if (err.name !== "NavigationDuplicated") {
+          throw err;
+        }
+      });
     },
   },
 };

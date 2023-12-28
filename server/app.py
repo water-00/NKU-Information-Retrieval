@@ -1,3 +1,5 @@
+import webbrowser
+import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from search import search
@@ -8,7 +10,26 @@ import logging
 app = Flask(__name__)
 CORS(app)
 
-logging.basicConfig(filename='server/search_logs.log', level=logging.INFO)
+logging.basicConfig(filename='./search_logs.log', level=logging.INFO)
+
+@app.route('/open-snapshot', methods=['GET'])
+def open_snapshot():
+    image_name = request.args.get('image_name', '')
+    
+    print(image_name)
+    
+    if image_name:
+        # 构建图片的完整文件路径
+        image_path = './resized_snapshot_img/' + image_name + '.png'
+        
+        # 打开图片
+        try:
+            webbrowser.open('file://' + os.path.abspath(image_path))
+            return jsonify({'message': f'Snapshot opened for {image_name}'})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': 'No image name provided'}), 400
 
 
 @app.route('/search', methods=['GET'])
