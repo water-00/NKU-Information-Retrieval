@@ -8,12 +8,12 @@
       <a-switch
         :checked="isWildcardSearch"
         @change="toggleWildcard"
-        style="margin-bottom: 10px;"
+        style="margin-bottom: 10px"
       />通配查询
       <a-switch
         :checked="isPhraseSearch"
         @change="togglePhrase"
-        style="margin-bottom: 10px;"
+        style="margin-bottom: 10px"
       />短语查询
       <a-input-search
         v-focus
@@ -63,12 +63,12 @@ export default {
       searchText: "",
       result: [],
       isWildcardSearch: false,
-      isPhraseSearch: false, 
-      keywords: '',
-      startDate: '',
-      endDate: '',
-      media: '',
-      excludedContent: ''
+      isPhraseSearch: false,
+      keywords: "",
+      startDate: "",
+      endDate: "",
+      media: "",
+      excludedContent: "",
     };
   },
   components: {
@@ -96,18 +96,19 @@ export default {
     },
     searchResult() {
       if (this.searchText !== "") {
-        this.$router.push({ 
-            path: `/search`, 
-            query: { 
-              q: this.searchText, 
-              wildcard: this.isWildcardSearch, 
+        this.$router
+          .push({
+            path: `/search`,
+            query: {
+              q: this.searchText,
+              wildcard: this.isWildcardSearch,
               phrase: this.isPhraseSearch,
               keywords: this.keywords,
               startDate: this.startDate,
               endDate: this.endDate,
               media: this.media,
-              excludedContent: this.excludedContent
-            }, 
+              excludedContent: this.excludedContent,
+            },
           })
           .catch((err) => {
             if (err.name !== "NavigationDuplicated") {
@@ -115,22 +116,28 @@ export default {
             }
           });
       }
-      
-    const path = `http://localhost:5000/search?q=${encodeURIComponent(this.searchText)}&wildcard=${this.isWildcardSearch}&phrase=${this.isPhraseSearch}&keywords=${this.keywords}&startDate=${this.startDate}&endDate=${this.endDate}&media=${this.media}&excludedContent=${this.excludedContent}`;
-    axios
-      .get(path)
-      .then((res) => {
-        this.result = res.data;
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+
+      const path = `http://localhost:5000/search?q=${encodeURIComponent(
+        this.searchText
+      )}&wildcard=${this.isWildcardSearch}&phrase=${
+        this.isPhraseSearch
+      }&keywords=${this.keywords}&startDate=${this.startDate}&endDate=${
+        this.endDate
+      }&media=${this.media}&excludedContent=${this.excludedContent}`;
+      axios
+        .get(path)
+        .then((res) => {
+          this.result = res.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
   created() {
-    this.searchText = this.$route.query.q || '';
-    this.isWildcardSearch = this.$route.query.wildcard === 'true';
-    this.isPhraseSearch = this.$route.query.phrase === 'true';
+    this.searchText = this.$route.query.q || "";
+    this.isWildcardSearch = this.$route.query.wildcard === "true";
+    this.isPhraseSearch = this.$route.query.phrase === "true";
     this.keywords = this.$route.query.keywords;
     this.startDate = this.$route.query.startDate;
     this.endDate = this.$route.query.endDate;
@@ -139,10 +146,10 @@ export default {
     this.searchResult();
   },
   watch: {
-    '$route.query'(newQuery) {
-      this.searchText = newQuery.q || '';
-      this.isWildcardSearch = newQuery.wildcard === 'true';
-      this.isPhraseSearch = newQuery.phrase === 'true';
+    "$route.query"(newQuery) {
+      this.searchText = newQuery.q || "";
+      this.isWildcardSearch = newQuery.wildcard === "true";
+      this.isPhraseSearch = newQuery.phrase === "true";
       this.keywords = this.$route.query.keywords;
       this.startDate = this.$route.query.startDate;
       this.endDate = this.$route.query.endDate;
@@ -177,7 +184,6 @@ img {
   padding-top: 4px;
   text-align: center;
 }
-
 
 /* 调整表单元素的宽度 */
 .phrase-search-form .ant-input,

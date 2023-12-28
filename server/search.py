@@ -50,5 +50,4 @@ def search(query: str):
     }
 
     result = es.search(index=index_name, body=dsl, size=10)
-    print(result)
     return result

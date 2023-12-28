@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-card hoverable>
+    <a-card hoverable @click="goToDetailedPage">
       <a-card-meta
         :title="info._source.title"
         :description="info._source.ctime"
@@ -13,7 +13,7 @@
       <!-- 修改描述部分，使其左对齐-->
       <div class="describe">{{info._source.content.slice(0, 200) + '...' }}</div>
       <!-- 显示Elasticsearch返回的_score值 -->
-      <div class="score">{{ info._score }}</div>
+      <div class="score">{{ info._source.keywords }}</div>
     </a-card>
   </div>
 </template>
@@ -22,6 +22,12 @@
 export default {
   name: "SearchResult",
   props: ["info"],
+  methods: {
+    goToDetailedPage() {
+      // 在这里使用路由导航到详细页面，你需要替换 'detailedPage' 为你的详细页面的路由路径
+      this.$router.push({ name: "detailedPage", params: { id: this.info._id } });
+    },
+  },
 };
 </script>
 
