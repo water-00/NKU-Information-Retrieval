@@ -6,6 +6,16 @@ from search import search
 from wildcardSearch import wildcardSearch
 from phraseSearch import phraseSearch
 import logging
+from elasticsearch import Elasticsearch
+
+# 连接到Elasticsearch
+USERNAME = "elastic"
+PASSWORD = "aYJ-U7SNLSE4X=ZnosE3"
+es = Elasticsearch(
+    ["http://localhost:9200"],
+    basic_auth=(USERNAME, PASSWORD),
+    verify_certs=False
+)
 
 app = Flask(__name__)
 CORS(app)
@@ -15,8 +25,6 @@ logging.basicConfig(filename='./search_logs.log', level=logging.INFO)
 @app.route('/open-snapshot', methods=['GET'])
 def open_snapshot():
     image_name = request.args.get('image_name', '')
-    
-    print(image_name)
     
     if image_name:
         # 构建图片的完整文件路径
@@ -31,6 +39,26 @@ def open_snapshot():
     else:
         return jsonify({'error': 'No image name provided'}), 400
 
+@app.route('/get-recommendations', methods=['GET'])
+def get_recommendations():
+    news_id = request.args.get('id', '')
+
+    print("news_id: ", news_id)
+    if not news_id:
+        return jsonify({'error': 'No news ID provided'}), 400
+
+    try:
+        # 查询 Elasticsearch 获取推荐新闻
+        res = es.get(index='newsina_index', id=news_id)
+        print("res: ", res)
+        if res['found']:
+            # 直接访问 '_source' 中的 'recommend' 字段，它已经是一个列表了
+            recommendations = res['_source'].get('recommend', [])
+            return jsonify({'recommendations': recommendations})
+        else:
+            return jsonify({'error': 'News not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/search', methods=['GET'])
 def movies():
@@ -46,7 +74,7 @@ def movies():
             endDate = request.args.get('endDate', '')
             media = request.args.get('media', '')
             excluded_content = request.args.get('excludedContent', '')
-            print(text, keywords, startDate, endDate, media, excluded_content)
+            # print(text, keywords, startDate, endDate, media, excluded_content)
             # 短语搜索
             result = phraseSearch(text, keywords, startDate, endDate, media, excluded_content)
         elif wildcard:

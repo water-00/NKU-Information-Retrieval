@@ -1,6 +1,10 @@
 <template>
   <div class="home">
     <LogoComponent class="ha"></LogoComponent>
+    <a-button class="login-button" @click="showLoginModal">登录</a-button>
+    <!-- 登录组件或对话框 -->
+    <LoginComponent v-if="showLogin" @close="showLogin = false" />
+    
     <div class="search-input">
       <a-input-search
         size="large"
@@ -49,6 +53,7 @@
 <script>
 // 子组件
 import LogoComponent from "@/components/LogoComponent.vue";
+import LoginComponent from "@/components/LoginComponent.vue";
 
 export default {
   name: "HomePage",
@@ -61,11 +66,13 @@ export default {
       startDate: '',
       endDate: '',
       media: '',
-      excludedContent: ''
+      excludedContent: '',
+      showLogin: false // 控制登录组件的显示
     };
   },
   components: {
     LogoComponent,
+    LoginComponent // 注册登录组件
   },
   methods: {
     onSearch() {
@@ -98,6 +105,9 @@ export default {
       this.isPhraseSearch = false;
       this.isWildcardSearch = !this.isWildcardSearch;
     },
+    showLoginModal() {
+      this.showLogin = true; // 显示登录组件
+    },
   },
   directives: {
     focus: {
@@ -115,6 +125,12 @@ export default {
   left: 50%;
   top: 40%;
   transform: translate(-50%, -50%);
+}
+
+.login-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 .search-input {

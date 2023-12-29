@@ -19,6 +19,16 @@
     </div>
     <button @click="goBack" class="back-button">返回</button>
     <button @click="openSnapshot" class="snapshot-button">网页快照</button>
+    
+    <div class="recommendations">
+      <h2>推荐新闻</h2>
+      <ul>
+        <li v-for="news in recommendations" :key="news.url">
+          <a :href="news.url" target="_blank">{{ news.title }}</a>
+        </li>
+      </ul>
+    </div>
+
     <div class="footer">
       <p>© 2023 Haogle</p>
     </div>
@@ -40,19 +50,13 @@ export default {
       content: "",
       keywords: "",
       keywordsList: [],
+      recommendations: []
     };
   },
 
   created() {
-    if (this.$route.query) {
-      this.id = this.$route.query.id;
-      this.title = this.$route.query.title;
-      this.ctime = this.$route.query.ctime;
-      this.media_name = this.$route.query.media_name;
-      this.content = this.$route.query.content;
-      this.keywords = this.$route.query.keywords;
-      this.keywordsList = this.keywords.split(","); // 假设关键字是以逗号分隔的
-    }
+    this.fetchNewsDetail();
+    this.fetchRecommendations();
   },
 
   methods: {
@@ -74,7 +78,27 @@ export default {
     formatTitleToFilename(title) {
       // 替换掉标题中所有非法的文件名字符，例如空格替换为下划线
       return title.replace(/[\s]+/g, '_');
-    }
+    },
+    fetchNewsDetail() {
+      if (this.$route.query) {
+        this.id = this.$route.query.id;
+        this.title = this.$route.query.title;
+        this.ctime = this.$route.query.ctime;
+        this.media_name = this.$route.query.media_name;
+        this.content = this.$route.query.content;
+        this.keywords = this.$route.query.keywords;
+        this.keywordsList = this.keywords.split(","); // 假设关键字是以逗号分隔的
+      }
+    },
+    fetchRecommendations() {
+      axios.get(`http://localhost:5000/get-recommendations?id=${this.id}`)
+        .then(response => {
+          this.recommendations = response.data.recommendations;
+        })
+        .catch(error => {
+          console.error('Error fetching recommendations:', error);
+        });
+  },
   },
 };
 </script>
