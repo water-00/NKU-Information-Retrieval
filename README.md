@@ -181,3 +181,7 @@ MongoDB中的内容样例如下：
 最后，在前端请求信息，后端调取数据库内容返回即可。
 
 ![image-20231230182114650](figure/image-20231230182114650.png)
+
+## 参考链接
+
+[mini-search](https://github.com/ischaojie/mini_search)
