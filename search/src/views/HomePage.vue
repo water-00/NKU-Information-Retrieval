@@ -1,15 +1,25 @@
 <template>
   <div>
-    <!-- 单独的 div 用于固定登录按钮 -->
+    <!-- 单独的 div 用于固定登录按钮或显示用户名 -->
     <div class="fixed-header">
-      <a-button class="login-button" @click="showLoginModal">登录</a-button>
-      <LoginComponent v-if="showLogin" @close="showLogin = false" />
+      <!-- 显示登录按钮或用户名 -->
+      <a-button v-if="!isLoggedIn" class="login-button" @click="showLoginModal"
+        >登录</a-button
+      >
+      <div v-else class="user-info">{{ username }}</div>
+      <!-- 登录组件，当登录成功时发出事件 -->
+      <LoginComponent
+        v-if="showLogin"
+        @close="showLogin = false"
+        @login-success="handleLoginSuccess"
+      />
     </div>
 
     <div class="home">
+      <!-- Logo 组件 -->
       <LogoComponent class="ha"></LogoComponent>
-      <!-- 登录组件或对话框 -->
 
+      <!-- 搜索输入和按钮 -->
       <div class="search-input">
         <a-input-search
           size="large"
@@ -17,7 +27,22 @@
           v-focus
           v-model="searchText"
           @search="onSearch"
+          @focus="onSearchInputFocus"
+          @blur="onSearchInputBlur"
         />
+        <!-- 搜索历史下拉列表 -->
+        <div v-if="showSearchHistory" class="search-history-dropdown">
+          <ul>
+            <li
+              v-for="(item, index) in searchHistory"
+              :key="index"
+              @click="selectSearchHistory(item)"
+            >
+              {{ item }}
+            </li>
+          </ul>
+        </div>
+        <!-- 搜索选项按钮 -->
         <div class="buttons">
           <a-button :class="{ active: isPhraseSearch }" @click="onPhraseSearch"
             >短语查询</a-button
@@ -66,6 +91,7 @@
 // 子组件
 import LogoComponent from "@/components/LogoComponent.vue";
 import LoginComponent from "@/components/LoginComponent.vue";
+import axios from "axios";
 
 export default {
   name: "HomePage",
@@ -79,7 +105,11 @@ export default {
       endDate: "",
       media: "",
       excludedContent: "",
-      showLogin: false, // 控制登录组件的显示
+      isLoggedIn: false,
+      username: "",
+      showLogin: false,
+      searchHistory: [],
+      showSearchHistory: false, // 控制搜索历史下拉列表的显示
     };
   },
   components: {
@@ -87,7 +117,58 @@ export default {
     LoginComponent, // 注册登录组件
   },
   methods: {
+    fetchSearchHistory() {
+      if (this.isLoggedIn) {
+        axios
+          .get(
+            `http://localhost:5000/get-search-history?username=${encodeURIComponent(
+              this.username
+            )}`
+          )
+          .then((response) => {
+            this.searchHistory = response.data.history;
+            this.showSearchHistory = true;
+          })
+          .catch((error) => {
+            console.error("Failed to fetch search history:", error);
+          });
+      }
+    },
+    onSearchInputFocus() {
+      this.fetchSearchHistory();
+    },
+    onSearchInputBlur() {
+      // 延迟隐藏下拉列表，以便可以点击选项
+      setTimeout(() => {
+        this.showSearchHistory = false;
+      }, 200);
+    },
+    handleLoginSuccess(username) {
+      this.isLoggedIn = true; // 设置为已登录
+      this.username = username; // 保存用户名
+      this.showLogin = false; // 关闭登录组件
+    },
+    sendSearchToBackend(searchText) {
+      const url = `http://localhost:5000/store-search-history`;
+      axios
+        .post(url, {
+          username: this.username, // 确保已经有用户名可用
+          searchText: searchText,
+        })
+        .then((response) => {
+          console.log("Search history stored:", response.data);
+        })
+        .catch((error) => {
+          console.error("Failed to store search history:", error);
+        });
+    },
     onSearch() {
+      if (this.isLoggedIn) {
+        this.searchHistory.push(this.searchText);
+        console.log(this.searchHistory);
+        this.sendSearchToBackend(this.searchText);
+      }
+
       if (this.searchText !== "") {
         this.$router
           .push({
@@ -134,6 +215,37 @@ export default {
 </script>
 
 <style scoped>
+.search-history-dropdown {
+  position: absolute;
+  top: 100%; /* 定位到输入框的下方 */
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 10; /* 确保下拉列表显示在其他元素之上 */
+}
+
+.search-history-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-history-dropdown li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.search-history-dropdown li:hover {
+  background-color: #f5f5f5;
+}
+.user-info {
+  /* 添加样式来显示用户名 */
+  padding: 10px;
+  background-color: #f0f0f0;
+}
+
 .fixed-header {
   position: fixed;
   top: 0;
