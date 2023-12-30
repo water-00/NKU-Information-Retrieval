@@ -22,6 +22,27 @@ CORS(app)
 
 logging.basicConfig(filename='./search_logs.log', level=logging.INFO)
 
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "12345678"
+
+@app.route('/login', methods=['POST'])
+def login():
+    # 获取JSON数据
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    print(username, password)
+
+    # 校验用户名和密码
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        # 登录成功，返回成功消息
+        return jsonify({'message': 'Login successful'}), 200
+    else:
+        # 登录失败，返回错误消息
+        return jsonify({'error': 'Invalid username or password'}), 401
+
+
 @app.route('/open-snapshot', methods=['GET'])
 def open_snapshot():
     image_name = request.args.get('image_name', '')
