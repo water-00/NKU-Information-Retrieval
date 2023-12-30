@@ -137,7 +137,7 @@ def get_recommendations():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/search', methods=['GET'])
-def movies():
+def searchs():
     text = request.args.get('q', '')
     wildcard = request.args.get('wildcard', 'false') == 'true'
     phrase = request.args.get('phrase', 'false') == 'true'

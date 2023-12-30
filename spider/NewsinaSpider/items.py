@@ -16,8 +16,8 @@ class NewsinaspiderItem(scrapy.Item):
     collection = 'newsina'
 
     ctime = Field()  # 发布时间
-    url = Field()
-    wapurl = Field()
+    url = Field()    # url
+    wapurl = Field() # 移动端url
     title = Field()  # 新闻标题
     media_name = Field()  # 发发布的媒体
     keywords = Field()  #  关键词
