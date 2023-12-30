@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.pdf
 *.png
+!figure/*.png
 
 # C extensions
 *.so
